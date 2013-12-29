@@ -63,7 +63,7 @@ unset BUILD_NUMBER
 export PATH=~/bin:$PATH
 
 export USE_CCACHE=1
-export BUILD_WITH_COLORS=0
+export BUILD_WITH_COLORS=1
 
 if [ ! "$(ccache -s|grep -E 'max cache size'|awk '{print $4}')" = "50.0" ]
 then
@@ -73,26 +73,6 @@ fi
 REPO=$(which repo)
 if [ -z "$REPO" ]
 then
-  mkdir -p ~/bin
-  curl https://dl-ssl.google.com/dl/googlesource/git-repo/repo > ~/bin/repo
-  chmod a+x ~/bin/repo
-fi
-
-git config --global user.name $(whoami)@$NODE_NAME
-git config --global user.email jenkins@cyanogenmod.com
-
-mkdir -p $REPO_BRANCH
-cd $REPO_BRANCH
-
-rm -rf .repo/manifests*
-rm -rf .repo/local_manifests/
-repo init -u $SYNC_PROTO://github.com/CyanogenMod/android.git -b $REPO_BRANCH
-check_result "repo init failed."
-
-mkdir -p .repo/local_manifests
-cp $WORKSPACE/hudson/recovery.xml .repo/local_manifests/
-curl -u koush:$GITHUB_TOKEN "https://raw.github.com/CyanogenMod/cm_build_config/master/$REPO_BRANCH.xml" > .repo/local_manifests/$REPO_BRANCH.xml
-
 echo Manifest:
 cat .repo/manifest.xml
 
@@ -110,6 +90,26 @@ if [ ! -z "$RECOVERY_IMAGE_URL" ]
 then
   export NO_UPLOAD=true
   echo Building unpackbootimg.
+  mkdir -p ~/bin
+  curl https://dl-ssl.google.com/dl/googlesource/git-repo/repo > ~/bin/repo
+  chmod a+x ~/bin/repo
+fi
+
+git config --global user.name $(whoami)@$NODE_NAME
+git config --global user.email jenkins@projectopencannibal.org
+
+mkdir -p $REPO_BRANCH
+cd $REPO_BRANCH
+
+rm -rf .repo/manifests*
+rm -rf .repo/local_manifests/
+repo init -u $SYNC_PROTO://github.com/thenameisnigel/android.git -b $REPO_BRANCH
+check_result "repo init failed."
+
+mkdir -p .repo/local_manifests
+cp $WORKSPACE/hudson/recovery.xml .repo/local_manifests/
+curl -u koush:$GITHUB_TOKEN "https://raw.github.com/CyanogenMod/cm_build_config/master/$REPO_BRANCH.xml" > .repo/local_manifests/$REPO_BRANCH.xml
+
   lunch full-userdebug
   make -j4 unpackbootimg
 
