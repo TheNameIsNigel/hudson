@@ -25,12 +25,6 @@ then
   exit 1
 fi
 
-if [ -z "$GITHUB_TOKEN" ]
-then
-  echo GITHUB_TOKEN not specified
-  exit 1
-fi
-
 if [ -z "$RECOVERY_IMAGE_URL" -a -z "$EXISTING_DEVICE" ]
 then
   echo RECOVERY_IMAGE_URL and EXISTING_DEVICE not specified
